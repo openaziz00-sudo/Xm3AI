@@ -1,6 +1,12 @@
 import { useState, useCallback, useRef } from 'react';
 import type { Message, AIMode } from '@/types';
-import { MOCK_AI_RESPONSES } from '@/constants';
+import { getActiveKeys, type ProviderId } from '@/lib/keys';
+import { generateGeminiReply, type ProviderMessage } from '@/lib/providers/gemini';
+import { generateOpenRouterReply } from '@/lib/providers/openrouter';
+import { XM3_AGENTS } from '@/constants/agents';
+
+const SEARCH_MODEL = 'perplexity/sonar-pro-search';
+const MAX_HISTORY_MESSAGES = 20;
 
 const generateId = () => Math.random().toString(36).slice(2, 10);
 
@@ -8,76 +14,144 @@ function makeWelcome(agentName: string): Message {
   return {
     id: 'welcome-' + generateId(),
     role: 'assistant',
-    content: `Welcome to **Xm3 AI Studio**. **${agentName}** is ready to collaborate.\n\n- Type \`/think\` for deep reasoning\n- Type \`/search\` to activate DeepSearch\n- Use the editor panel on the right for docs or code\n\nWhat are we working on today?`,
+    content: `This chat sends your message to the selected AI provider using your key. Add a provider key in Settings to start.`,
     timestamp: new Date(),
     mode: 'chat',
   };
 }
 
-export function useChat(initialMode: AIMode = 'chat', agentName = 'Xm3 Core') {
+function buildSystemInstruction(agentName: string, mode: AIMode): string {
+  const instructions = [
+    `You are ${agentName}, an assistant in Xm3AI Studio. Answer the user's request directly and accurately.`,
+    'Do not claim to have used tools, executed code, or searched the web unless the selected model actually provides that capability and you did so.',
+  ];
+  if (mode === 'think') {
+    instructions.push('Reason carefully before answering. Provide the conclusion and a concise explanation, not private chain-of-thought.');
+  }
+  if (mode === 'deepsearch') {
+    instructions.push('Use your web-search capability for current information. Include source URLs when your search results provide them. If you cannot search, say so; do not invent sources or search results.');
+  }
+  return instructions.join('\n');
+}
+
+function getConversationHistory(messages: Message[], userMessage: Message): ProviderMessage[] {
+  const recent = [...messages, userMessage]
+    .filter((message) => !message.id.startsWith('welcome-') && !message.error)
+    .slice(-MAX_HISTORY_MESSAGES);
+  while (recent[0]?.role === 'assistant') recent.shift();
+  return recent.map((message) => ({
+    role: message.role,
+    content: message.content,
+  }));
+}
+
+function noKeyMessage(provider: ProviderId): string {
+  const label = provider === 'gemini' ? 'Gemini' : 'OpenRouter';
+  return `No ${label} API key configured. Add your own in Settings (Ctrl+K → Settings), or wait for the platform key to be enabled. No AI response was generated.`;
+}
+
+export function useChat(initialMode: AIMode = 'chat', agentName = 'Xm3 Core', agentId = 'xm3-core') {
   const [messages, setMessages] = useState<Message[]>(() => [makeWelcome(agentName)]);
   const [isLoading, setIsLoading] = useState(false);
   const [aiMode, setAiMode] = useState<AIMode>(initialMode);
-  const abortRef = useRef(false);
+  const abortRef = useRef<AbortController | null>(null);
 
   const sendMessage = useCallback(
     async (content: string) => {
       if (!content.trim() || isLoading) return;
 
       let effectiveMode: AIMode = aiMode;
-      let processedContent = content;
-
-      if (content.toLowerCase().startsWith('/think')) {
+      let processedContent = content.trim();
+      if (processedContent.toLowerCase().startsWith('/think')) {
         effectiveMode = 'think';
-        processedContent = content.replace(/^\/think\s*/i, '') || 'Analyze this deeply.';
-      } else if (content.toLowerCase().startsWith('/search')) {
+        processedContent = processedContent.replace(/^\/think\s*/i, '') || 'Please help me think through this.';
+      } else if (processedContent.toLowerCase().startsWith('/search')) {
         effectiveMode = 'deepsearch';
-        processedContent = content.replace(/^\/search\s*/i, '') || 'Search for relevant information.';
+        processedContent = processedContent.replace(/^\/search\s*/i, '') || 'Search for relevant information.';
       }
 
-      const userMsg: Message = {
+      const userMessage: Message = {
         id: generateId(),
         role: 'user',
         content: processedContent,
         timestamp: new Date(),
         mode: effectiveMode,
       };
-
-      setMessages((prev) => [...prev, userMsg]);
+      setMessages((previous) => [...previous, userMessage]);
       setIsLoading(true);
-      abortRef.current = false;
 
-      const delay = effectiveMode === 'think' ? 2200 : effectiveMode === 'deepsearch' ? 1800 : 900;
-      await new Promise((resolve) => setTimeout(resolve, delay));
+      const controller = new AbortController();
+      abortRef.current?.abort();
+      abortRef.current = controller;
 
-      if (!abortRef.current) {
-        const pool = MOCK_AI_RESPONSES[effectiveMode] ?? MOCK_AI_RESPONSES['chat'];
-        const responseText = pool[Math.floor(Math.random() * pool.length)];
+      try {
+        const agent = XM3_AGENTS.find((item) => item.id === agentId) ?? XM3_AGENTS[0];
+        const provider: ProviderId = effectiveMode === 'deepsearch'
+          ? 'openrouter'
+          : agent.provider === 'google' ? 'gemini' : 'openrouter';
+        const model = effectiveMode === 'deepsearch' ? SEARCH_MODEL : agent._realModel;
+        const systemInstruction = buildSystemInstruction(agent.name, effectiveMode);
+        const history = getConversationHistory(messages, userMessage);
+        const key = getActiveKeys()[provider]?.trim();
 
-        const assistantMsg: Message = {
+        if (!key) {
+          if (!controller.signal.aborted) {
+            setMessages((previous) => [...previous, {
+              id: generateId(),
+              role: 'assistant',
+              content: noKeyMessage(provider),
+              timestamp: new Date(),
+              mode: effectiveMode,
+              error: true,
+            }]);
+          }
+          return;
+        }
+
+        const result = provider === 'gemini'
+          ? await generateGeminiReply({ apiKey: key, model, messages: history, systemInstruction, signal: controller.signal })
+          : await generateOpenRouterReply({ apiKey: key, model, messages: history, systemInstruction, signal: controller.signal });
+
+        if (controller.signal.aborted) return;
+        setMessages((previous) => [...previous, {
           id: generateId(),
           role: 'assistant',
-          content: responseText,
+          content: result.ok ? result.text : result.message,
           timestamp: new Date(),
           mode: effectiveMode,
-        };
-
-        setMessages((prev) => [...prev, assistantMsg]);
+          error: !result.ok,
+        }]);
+      } catch {
+        if (!controller.signal.aborted) {
+          setMessages((previous) => [...previous, {
+            id: generateId(),
+            role: 'assistant',
+            content: 'Could not read provider settings in this browser. Open Settings, clear saved keys if needed, and enter the key again.',
+            timestamp: new Date(),
+            mode: effectiveMode,
+            error: true,
+          }]);
+        }
+      } finally {
+        if (abortRef.current === controller) abortRef.current = null;
+        if (!controller.signal.aborted) setIsLoading(false);
       }
-
-      setIsLoading(false);
     },
-    [isLoading, aiMode]
+    [isLoading, aiMode, messages, agentId],
   );
 
   const clearMessages = useCallback((newAgentName = agentName) => {
-    abortRef.current = true;
+    abortRef.current?.abort();
+    abortRef.current = null;
     setIsLoading(false);
     setMessages([makeWelcome(newAgentName)]);
   }, [agentName]);
 
-  const replaceMessages = useCallback((msgs: Message[]) => {
-    setMessages(msgs);
+  const replaceMessages = useCallback((nextMessages: Message[]) => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setIsLoading(false);
+    setMessages(nextMessages);
   }, []);
 
   return { messages, isLoading, aiMode, setAiMode, sendMessage, clearMessages, replaceMessages, setMessages };

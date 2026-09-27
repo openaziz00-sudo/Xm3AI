@@ -99,7 +99,7 @@ const ChatInput = ({ onSend, isLoading, onOpenCommandPalette }: ChatInputProps) 
       </div>
 
       <p className="text-[10px] text-[hsl(var(--text-subtle))] mt-1.5 text-center">
-        Xm3 AI · Responses may be inaccurate
+        Sends prompts to your selected provider; usage or charges may apply. Responses may be inaccurate.
       </p>
     </div>
   );

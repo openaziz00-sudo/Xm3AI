@@ -38,7 +38,8 @@ const Studio = ({ externalCmdOpen, onCmdClose }: StudioProps) => {
 
   const { messages, isLoading, aiMode, setAiMode, sendMessage, clearMessages, replaceMessages } = useChat(
     activeSession.aiMode,
-    currentAgent.name
+    currentAgent.name,
+    agentId
   );
 
   const {
