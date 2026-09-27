@@ -1,0 +1,160 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Xm3 Dark Theme */
+    --background: 240 15% 4%;
+    --foreground: 210 20% 96%;
+
+    --card: 240 12% 7%;
+    --card-foreground: 210 20% 96%;
+
+    --popover: 240 12% 7%;
+    --popover-foreground: 210 20% 96%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 240 15% 4%;
+
+    --secondary: 240 10% 12%;
+    --secondary-foreground: 210 15% 80%;
+
+    --muted: 240 10% 10%;
+    --muted-foreground: 215 15% 50%;
+
+    --accent: 217 91% 60%;
+    --accent-foreground: 240 15% 4%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 20% 96%;
+
+    --border: 240 8% 14%;
+    --input: 240 10% 10%;
+    --ring: 217 91% 60%;
+
+    --radius: 0.75rem;
+
+    /* Custom tokens */
+    --surface-1: 240 12% 7%;
+    --surface-2: 240 10% 10%;
+    --surface-3: 240 8% 13%;
+    --blue-glow: 217 91% 60%;
+    --blue-dim: 217 70% 45%;
+    --text-primary: 210 20% 96%;
+    --text-secondary: 215 15% 65%;
+    --text-subtle: 215 10% 40%;
+
+    --sidebar-background: 240 14% 5%;
+    --sidebar-foreground: 210 15% 80%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 240 15% 4%;
+    --sidebar-accent: 240 10% 10%;
+    --sidebar-accent-foreground: 210 15% 80%;
+    --sidebar-border: 240 8% 12%;
+    --sidebar-ring: 217 91% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  code, pre, .mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--surface-1));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--surface-3));
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground));
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-blue {
+    background: rgba(59, 130, 246, 0.08);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+  }
+
+  .glow-blue {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.15), 0 0 40px rgba(59, 130, 246, 0.05);
+  }
+
+  .glow-blue-sm {
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #fff 0%, rgba(59, 130, 246, 0.9) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .surface-1 { background: hsl(var(--surface-1)); }
+  .surface-2 { background: hsl(var(--surface-2)); }
+  .surface-3 { background: hsl(var(--surface-3)); }
+
+  .prose-dark h1, .prose-dark h2, .prose-dark h3 {
+    @apply text-foreground font-semibold;
+  }
+  .prose-dark p {
+    @apply text-[hsl(var(--text-secondary))] leading-relaxed;
+  }
+  .prose-dark strong {
+    @apply text-foreground font-semibold;
+  }
+  .prose-dark em {
+    @apply text-[hsl(var(--text-secondary))] italic;
+  }
+  .prose-dark code {
+    @apply text-[hsl(var(--blue-glow))] bg-[hsl(var(--surface-2))] px-1.5 py-0.5 rounded text-sm;
+  }
+  .prose-dark pre {
+    @apply bg-[hsl(var(--surface-2))] border border-[hsl(var(--border))] rounded-lg p-4 overflow-x-auto;
+  }
+  .prose-dark blockquote {
+    @apply border-l-2 border-[hsl(var(--blue-glow))] pl-4 italic text-[hsl(var(--text-subtle))];
+  }
+  .prose-dark ul, .prose-dark ol {
+    @apply pl-6;
+  }
+  .prose-dark li {
+    @apply text-[hsl(var(--text-secondary))] leading-relaxed mb-1;
+  }
+
+  .dot-grid {
+    background-image: radial-gradient(circle, rgba(59, 130, 246, 0.12) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+}
