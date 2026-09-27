@@ -7,6 +7,7 @@ export default defineConfig({
   server: {
     host: "::",
     port: 8080,
+    allowedHosts: process.env.MANUS_PREVIEW_HOST ? [process.env.MANUS_PREVIEW_HOST] : [],
   },
   plugins: [
     react(),

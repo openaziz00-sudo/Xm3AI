@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   Command, Search, Plus, RotateCcw, PanelRightOpen, Brain,
-  FileText, Code2, Zap, X, ArrowRight
+  FileText, Code2, Zap, X, ArrowRight, Settings as SettingsIcon
 } from 'lucide-react';
 import type { AIMode, EditorMode } from '@/types';
 import { XM3_AGENTS } from '@/constants/agents';
@@ -14,6 +14,7 @@ interface CommandPaletteProps {
   onSetAiMode: (mode: AIMode) => void;
   onSetEditorMode: (mode: EditorMode) => void;
   onSetAgent: (id: string) => void;
+  onOpenSettings: () => void;
   currentAiMode: AIMode;
   currentEditorMode: EditorMode;
   currentAgentId: string;
@@ -37,6 +38,7 @@ const CommandPalette = ({
   onSetAiMode,
   onSetEditorMode,
   onSetAgent,
+  onOpenSettings,
   currentAiMode,
   currentEditorMode,
   currentAgentId,
@@ -69,6 +71,14 @@ const CommandPalette = ({
       icon: Command,
       color: 'text-blue-400',
       action: () => { onSetAiMode('chat'); onClose(); },
+    },
+    {
+      id: 'settings',
+      label: 'Settings',
+      description: 'Manage provider API keys',
+      icon: SettingsIcon,
+      color: 'text-blue-300',
+      action: () => { onOpenSettings(); onClose(); },
     },
     {
       id: 'mode-think',
