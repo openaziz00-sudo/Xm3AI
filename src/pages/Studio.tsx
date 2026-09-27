@@ -10,6 +10,7 @@ import SessionHistory from '@/components/features/SessionHistory';
 import CommandPalette from '@/components/features/CommandPalette';
 import BrowserPreview from '@/components/features/BrowserPreview';
 import FileManager from '@/components/features/FileManager';
+import SettingsDialog from '@/components/features/SettingsDialog';
 
 interface StudioProps {
   externalCmdOpen?: boolean;
@@ -21,6 +22,7 @@ const Studio = ({ externalCmdOpen, onCmdClose }: StudioProps) => {
   const [sessionSidebarCollapsed, setSessionSidebarCollapsed] = useState(false);
   const [fileManagerOpen, setFileManagerOpen] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [browserPreviewOpen, setBrowserPreviewOpen] = useState(false);
   const [agentId, setAgentId] = useState(DEFAULT_AGENT_ID);
 
@@ -154,6 +156,7 @@ const Studio = ({ externalCmdOpen, onCmdClose }: StudioProps) => {
         onSetAiMode={setAiMode}
         onSetEditorMode={setEditorMode}
         onSetAgent={handleAgentChange}
+        onOpenSettings={() => setSettingsOpen(true)}
         currentAiMode={aiMode}
         currentEditorMode={editorMode}
         currentAgentId={agentId}
@@ -164,6 +167,8 @@ const Studio = ({ externalCmdOpen, onCmdClose }: StudioProps) => {
         open={browserPreviewOpen}
         onClose={() => setBrowserPreviewOpen(false)}
       />
+
+      <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   );
 };
