@@ -87,7 +87,7 @@ const Studio = ({ externalCmdOpen, onCmdClose }: StudioProps) => {
   }, [onCmdClose]);
 
   return (
-    <div className="flex h-screen pt-14 overflow-hidden bg-background">
+    <div className="flex h-[calc(100vh-3.5rem)] min-h-0 pt-0 overflow-hidden bg-background">
       {/* Session History Sidebar */}
       <SessionHistory
         sessions={sessions}

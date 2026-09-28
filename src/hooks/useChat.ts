@@ -4,6 +4,7 @@ import { getActiveKeys, type ProviderId } from '@/lib/keys';
 import { generateGeminiReply, type ProviderMessage } from '@/lib/providers/gemini';
 import { generateOpenRouterReply } from '@/lib/providers/openrouter';
 import { XM3_AGENTS } from '@/constants/agents';
+import { generateOfflineReply } from '@/lib/offline';
 
 const SEARCH_MODEL = 'perplexity/sonar-pro-search';
 const MAX_HISTORY_MESSAGES = 20;
@@ -14,7 +15,7 @@ function makeWelcome(agentName: string): Message {
   return {
     id: 'welcome-' + generateId(),
     role: 'assistant',
-    content: `This chat sends your message to the selected AI provider using your key. Add a provider key in Settings to start.`,
+    content: `**${agentName} is ready.**\n\nYou can start immediately in Offline mode — no API key is required. Connect Gemini or OpenRouter in Settings whenever you want live model responses.`,
     timestamp: new Date(),
     mode: 'chat',
   };
@@ -43,11 +44,6 @@ function getConversationHistory(messages: Message[], userMessage: Message): Prov
     role: message.role,
     content: message.content,
   }));
-}
-
-function noKeyMessage(provider: ProviderId): string {
-  const label = provider === 'gemini' ? 'Gemini' : 'OpenRouter';
-  return `No ${label} API key configured. Add your own in Settings (Ctrl+K → Settings), or wait for the platform key to be enabled. No AI response was generated.`;
 }
 
 export function useChat(initialMode: AIMode = 'chat', agentName = 'Xm3 Core', agentId = 'xm3-core') {
@@ -96,14 +92,7 @@ export function useChat(initialMode: AIMode = 'chat', agentName = 'Xm3 Core', ag
 
         if (!key) {
           if (!controller.signal.aborted) {
-            setMessages((previous) => [...previous, {
-              id: generateId(),
-              role: 'assistant',
-              content: noKeyMessage(provider),
-              timestamp: new Date(),
-              mode: effectiveMode,
-              error: true,
-            }]);
+            setMessages((previous) => [...previous, generateOfflineReply(processedContent, agent.name, effectiveMode)]);
           }
           return;
         }

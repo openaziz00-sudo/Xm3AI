@@ -7,9 +7,10 @@ interface MessageBubbleProps {
 }
 
 function renderMarkdown(text: string): string {
-  return text
+  const escapedText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+  return escapedText
     .replace(/```(\w*)\n?([\s\S]*?)```/g, (_: string, lang: string, code: string) =>
-      `<pre class="bg-[hsl(var(--surface-2))] border border-[hsl(var(--border))] rounded-lg p-4 overflow-x-auto my-3"><code class="text-blue-300 mono text-sm">${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>`
+      `<pre class="bg-[hsl(var(--surface-2))] border border-[hsl(var(--border))] rounded-lg p-4 overflow-x-auto my-3"><code class="text-blue-300 mono text-sm">${code}</code></pre>`
     )
     .replace(/`([^`]+)`/g, '<code class="text-blue-400 bg-[hsl(var(--surface-2))] px-1.5 py-0.5 rounded text-sm mono">$1</code>')
     .replace(/\*\*([^*]+)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>')

@@ -98,8 +98,8 @@ const ChatInput = ({ onSend, isLoading, onOpenCommandPalette }: ChatInputProps) 
         </div>
       </div>
 
-      <p className="text-[10px] text-[hsl(var(--text-subtle))] mt-1.5 text-center">
-        Sends prompts to your selected provider; usage or charges may apply. Responses may be inaccurate.
+      <p className="text-[10px] text-[hsl(var(--text-subtle))] mt-1.5 text-center leading-relaxed">
+        Works offline without a key. Connect a provider for live responses; usage or charges may apply.
       </p>
     </div>
   );

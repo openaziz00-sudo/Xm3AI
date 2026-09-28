@@ -7,7 +7,8 @@ export default defineConfig({
   server: {
     host: "::",
     port: 8080,
-    allowedHosts: process.env.MANUS_PREVIEW_HOST ? [process.env.MANUS_PREVIEW_HOST] : [],
+    // The sandbox exposes Vite through a generated public hostname during preview.
+    allowedHosts: true,
   },
   plugins: [
     react(),
