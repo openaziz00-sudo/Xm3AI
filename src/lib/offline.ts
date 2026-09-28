@@ -8,6 +8,7 @@ export function generateOfflineReply(
   prompt: string,
   agentName: string,
   mode: AIMode,
+  providerNotice?: string,
 ): Message {
   const cleanPrompt = prompt.trim();
   const lowerPrompt = cleanPrompt.toLowerCase();
@@ -18,6 +19,9 @@ export function generateOfflineReply(
       : 'This is a local workspace response; connect a provider in Settings when you want live model output.';
 
   let content = `**${agentName} · Offline mode**\n\n${modeNote}\n\n`;
+  if (providerNotice) {
+    content += `> Live provider unavailable: ${providerNotice}\n\nI kept the local assistant active so you can continue working.\n\n`;
+  }
 
   if (lowerPrompt.includes('hello') || lowerPrompt.includes('hi') || lowerPrompt.includes('مرحبا') || lowerPrompt.includes('السلام')) {
     content += 'مرحباً! أنا جاهز للعمل داخل مساحة Xm3AI. اكتب فكرة أو مهمة وسأحوّلها إلى خطوات واضحة.';

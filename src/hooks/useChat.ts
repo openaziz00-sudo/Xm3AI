@@ -102,14 +102,15 @@ export function useChat(initialMode: AIMode = 'chat', agentName = 'Xm3 Core', ag
           : await generateOpenRouterReply({ apiKey: key, model, messages: history, systemInstruction, signal: controller.signal });
 
         if (controller.signal.aborted) return;
-        setMessages((previous) => [...previous, {
-          id: generateId(),
-          role: 'assistant',
-          content: result.ok ? result.text : result.message,
-          timestamp: new Date(),
-          mode: effectiveMode,
-          error: !result.ok,
-        }]);
+        setMessages((previous) => [...previous, result.ok
+          ? {
+              id: generateId(),
+              role: 'assistant' as const,
+              content: result.text,
+              timestamp: new Date(),
+              mode: effectiveMode,
+            }
+          : generateOfflineReply(processedContent, agent.name, effectiveMode, result.message)]);
       } catch {
         if (!controller.signal.aborted) {
           setMessages((previous) => [...previous, {

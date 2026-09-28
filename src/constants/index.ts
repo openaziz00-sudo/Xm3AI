@@ -1,7 +1,7 @@
 import type { CodeLanguage } from '@/types';
 
 export const AI_PROVIDERS = [
-  { id: 'gemini', label: 'Google Gemini', model: 'gemini-2.5-flash' },
+  { id: 'gemini', label: 'Google Gemini', model: 'gemini-3.5-flash' },
   { id: 'openrouter', label: 'Open Router', model: 'meta-llama/llama-3.3-70b' },
 ] as const;
 

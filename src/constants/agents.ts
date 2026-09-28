@@ -33,7 +33,7 @@ export const XM3_AGENTS: XmAgent[] = [
     capabilities: ['Multi-turn conversation', 'Document drafting', 'Code assistance', 'Fast responses'],
     provider: 'google',
     _realProvider: 'Google',
-    _realModel: 'gemini-2.5-flash',
+    _realModel: 'gemini-3.5-flash',
   },
   {
     id: 'xm3-think',
@@ -47,7 +47,7 @@ export const XM3_AGENTS: XmAgent[] = [
     capabilities: ['Chain-of-thought reasoning', 'Complex problem solving', 'Multi-layer analysis', 'Research synthesis'],
     provider: 'google',
     _realProvider: 'Google',
-    _realModel: 'gemini-2.5-pro',
+    _realModel: 'gemini-3.5-flash',
   },
   {
     id: 'xm3-search',
@@ -61,7 +61,7 @@ export const XM3_AGENTS: XmAgent[] = [
     capabilities: ['Live web search', 'Source ranking & verification', 'Citation extraction', 'Cross-reference synthesis'],
     provider: 'openrouter',
     _realProvider: 'OpenRouter',
-    _realModel: 'perplexity/llama-3.1-sonar-large-128k-online',
+    _realModel: 'perplexity/sonar-pro-search',
   },
   {
     id: 'xm3-vision',
@@ -75,7 +75,7 @@ export const XM3_AGENTS: XmAgent[] = [
     capabilities: ['Image analysis & description', 'Chart & diagram reading', 'Document OCR', 'Visual QA'],
     provider: 'google',
     _realProvider: 'Google',
-    _realModel: 'gemini-2.5-flash',
+    _realModel: 'gemini-3.5-flash',
   },
   {
     id: 'xm3-code',
@@ -89,7 +89,7 @@ export const XM3_AGENTS: XmAgent[] = [
     capabilities: ['Code generation & completion', 'Bug detection & fixes', 'Architecture design', 'Supports 40+ languages'],
     provider: 'openrouter',
     _realProvider: 'OpenRouter',
-    _realModel: 'anthropic/claude-3.5-sonnet',
+    _realModel: 'openrouter/free',
   },
 ];
 
